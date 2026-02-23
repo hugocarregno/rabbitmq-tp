@@ -1,21 +1,8 @@
-import pika
-import json
-import time
-import sys
-import os
-
-credentials = pika.PlainCredentials('admin', 'admin')
+import json, time, sys, os
+from connection import get_channel
 
 def main():
-    connection = pika.BlockingConnection(
-        pika.ConnectionParameters(
-            host='localhost',
-            credentials=credentials
-        )
-    )
-
-    channel = connection.channel()
-    channel.queue_declare(queue='tareas', durable=True)
+    connection, channel = get_channel()
 
     channel.basic_qos(prefetch_count=1)
 
@@ -32,7 +19,6 @@ def main():
             
         except Exception as e:
             print(f"Error procesando la tarea: {e}")
-            # Si hay error, rechazamos negativamente y no volvemos a encolar
             ch.basic_nack(delivery_tag=method.delivery_tag, requeue=False)
 
     channel.basic_consume(

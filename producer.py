@@ -1,22 +1,15 @@
-import pika
-import json
-import random
+import pika, json, random
 from datetime import datetime
 
-# Conexión a RabbitMQ
-credentials = pika.PlainCredentials('admin', 'admin')
+from connection import get_channel
 
-connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost',credentials=credentials))
-channel = connection.channel()
-
-# Declarar cola durable
-channel.queue_declare(queue='tareas', durable=True)
+connection, channel = get_channel()
 
 # Enviar 10 mensajes
 for i in range(1, 11):
     mensaje = {
         "id": i,
-        "descripcion": f"Tarea número {i}",
+        "descripcion": f"Tarea número {i} - " + "x" * 500,
         "fecha": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "dificultad": random.randint(1, 3)
     }
